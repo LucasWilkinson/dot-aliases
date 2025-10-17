@@ -31,6 +31,11 @@ alias vllm-test='pytest -xvs'
 alias cleanup-vllm='pkill -9 -f "api_server" 2>/dev/null; pkill -9 -f "benchmarks" 2>/dev/null; pkill -9 -f "VLLM::" 2>/dev/null; sleep 2'
 alias jl='just -f ~/.config/aliases/dot-aliases/Justfile'
 
+# CUDA debugging with coredumps
+cuda-debug() {
+  CUDA_ENABLE_COREDUMP_ON_EXCEPTION=1 CUDA_COREDUMP_SHOW_PROGRESS=1 CUDA_COREDUMP_GENERATION_FLAGS='skip_nonrelocated_elf_images,skip_global_memory,skip_shared_memory,skip_local_memory,skip_constbank_memory' "$@"
+}
+
 # Quick shortcuts
 alias py='python'
 alias py3='python3'
