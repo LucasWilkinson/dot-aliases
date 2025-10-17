@@ -24,8 +24,12 @@ alias gpumem='nvidia-smi --query-gpu=index,memory.used,memory.total --format=csv
 alias venv='source /home/lwilkinson/code/vllm/.venv/bin/activate'
 alias vllm-code='cd /home/lwilkinson/code/vllm'
 alias vllm-build='source ~/.venv/bin/activate && cd ~/code/vllm && export VLLM_FLASH_ATTN_SRC_DIR=~/code/flash-attention && VLLM_DISABLE_SCCACHE=1 python setup.py build_ext --inplace'
+alias vpi='VLLM_DISABLE_SCCACHE=1 CCACHE_NOHASHDIR="true" uv pip install --no-build-isolation -e . -v'
+alias vbx='python setup.py build_ext --inplace'
+alias va='source .venv/bin/activate'
 alias vllm-test='pytest -xvs'
 alias cleanup-vllm='pkill -9 -f "api_server" 2>/dev/null; pkill -9 -f "benchmarks" 2>/dev/null; pkill -9 -f "VLLM::" 2>/dev/null; sleep 2'
+alias jl='just -f ~/.config/aliases/dot-aliases/Justfile'
 
 # Quick shortcuts
 alias py='python'
