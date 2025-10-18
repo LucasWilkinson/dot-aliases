@@ -4,7 +4,9 @@ A reusable infrastructure for running vLLM tests with robust server management,
 process monitoring, logging, and user interfaces.
 """
 
+from .benchmark_runner import BaseBenchmarkRunner
 from .config import Config
+from .eval_runner import EvalRunner
 from .git import GitError, GitManager
 from .logging import LogManager
 from .process import ProcessManager
@@ -25,8 +27,12 @@ from .utils import (
 __version__ = "0.1.0"
 
 __all__ = [
+    # Benchmark
+    "BaseBenchmarkRunner",
     # Config
     "Config",
+    # Evaluation
+    "EvalRunner",
     # Git
     "GitManager",
     "GitError",

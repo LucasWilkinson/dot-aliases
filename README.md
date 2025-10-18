@@ -2,6 +2,8 @@
 
 A simple, cross-shell repository for keeping your aliases in one place and installing them on any machine in a single command.
 
+**📖 AI Agent Guide**: See [AGENT_BENCHMARK_GUIDE.md](AGENT_BENCHMARK_GUIDE.md) for comprehensive benchmark instructions for AI agents.
+
 ## Files
 
 - `aliases.sh` — Your shell aliases and functions (works in bash, zsh, and POSIX-compatible shells)
@@ -80,8 +82,9 @@ alias aliases-update='curl -fsSL https://raw.githubusercontent.com/LucasWilkinso
 - `cleanup-vllm` — Kill vLLM processes
 
 ### vLLM Test Infrastructure
+- `benchmark` — Benchmark current branch (standalone, simplified)
+- `benchmark-compare` — Compare benchmarks across git branches
 - `gsm8k-eval` — Run GSM8K evaluation (from any directory)
-- `benchmark-compare` — Run benchmark comparison across branches (from any directory)
 - `vllm-test-infra-install` — Install Python dependencies for test infrastructure
 
 ### Development
@@ -137,6 +140,11 @@ vllm-test-infra-install
 # Or manually: pip install -r ~/.config/aliases/dot-aliases/python/requirements.txt
 ```
 
+Benchmark current branch (from any directory):
+```bash
+benchmark --model deepseek-ai/DeepSeek-V3.2-Exp -tp 8 --rates "1,5,10"
+```
+
 Run GSM8K evaluation (from any directory):
 ```bash
 gsm8k-eval --model deepseek-ai/DeepSeek-R1 --limit 100
@@ -147,7 +155,7 @@ Compare benchmarks across branches (from any directory):
 benchmark-compare \
   --model meta-llama/Meta-Llama-3-8B-Instruct \
   --rates 1,5,10 \
-  --variants 'base::;fullcg::-O {"full_cuda_graph":true}'
+  --variants 'base::;full::-O.cudagraph_mode=FULL'
 ```
 
 See [python/README.md](python/README.md) for full documentation.

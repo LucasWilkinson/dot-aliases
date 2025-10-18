@@ -77,8 +77,8 @@ TMUX_SESSION_NAME="${TMUX_SESSION_NAME:-vllm-bench-$$}"
 #     2) label::env:K=V,K2=V2::args
 #   Examples:
 #     `--variants-pr   'piece::env:CUDA_VISIBLE_DEVICES=0::--compilation-config {"cudagraph_mode":"PIECEWISE"};full::--compilation-config {"cudagraph_mode":"FULL"}'`
-#     --variants-main 'std::;fullcg::-O {"full_cuda_graph":true}'
-#     --variants      'std::;fullcg::-O {"full_cuda_graph":true}'  # applies to both MAIN and PR unless overridden
+#     --variants-main 'std::;full::-O.cudagraph_mode=FULL'
+#     --variants      'std::;full::-O.cudagraph_mode=FULL'  # applies to both MAIN and PR unless overridden
 VARIANTS_MAIN_SPEC="${VARIANTS_MAIN_SPEC:-}"
 VARIANTS_PR_SPEC="${VARIANTS_PR_SPEC:-}"
 VARIANTS_BOTH_SPEC="${VARIANTS_BOTH_SPEC:-}"
@@ -170,8 +170,8 @@ Sweep Variants (preferred):
         label::env:K=V,K2=V2::args      # per-variant env vars (server process only)
     - Examples:
         --variants-pr 'piece::env:CUDA_VISIBLE_DEVICES=0::--compilation-config {"cudagraph_mode":"PIECEWISE"};full::--compilation-config {"cudagraph_mode":"FULL"}'
-        --variants-main 'std::;fullcg::-O {"full_cuda_graph":true}'
-        --variants 'std::;fullcg::-O {"full_cuda_graph":true}'
+        --variants-main 'std::;full::-O.cudagraph_mode=FULL'
+        --variants 'std::;full::-O.cudagraph_mode=FULL'
 
 Plotting:
   --plot 0|1                          Plot at end (default: 0)
@@ -188,7 +188,7 @@ Other:
 
 Notes:
 - Always includes: --no-enable-prefix-caching --disable-log-stats --trust-remote-code
-- No "mode" concept; encode cudagraph behavior in variant args (e.g., -O {"full_cuda_graph":true} or --compilation-config {"cudagraph_mode":"FULL"})
+- No "mode" concept; encode cudagraph behavior in variant args (e.g., -O.cudagraph_mode=FULL or -O.cudagraph_mode=PIECEWISE)
 - Summary table (TSV) at logs/summary.tsv with columns:
     branch, variant, rate, req/s, median TTFT (ms), median TPOT (ms)
 EOF

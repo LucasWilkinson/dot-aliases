@@ -48,7 +48,7 @@ benchmark-compare \
 # Test multiple variants
 benchmark-compare \
   --model meta-llama/Meta-Llama-3-8B-Instruct \
-  --variants 'base::;fullcg::-O {"full_cuda_graph":true}' \
+  --variants 'base::;full::-O.cudagraph_mode=FULL' \
   --rates 1,10,100 \
   -tp 2
 
@@ -96,7 +96,7 @@ benchmark-compare \
 
 ```bash
 # Simple variants (label::args)
---variants 'base::;fullcg::-O {"full_cuda_graph":true}'
+--variants 'base::;full::-O.cudagraph_mode=FULL'
 
 # Variants with environment variables (label::env:K=V,K2=V2::args)
 --variants 'piece::env:VLLM_USE_PIECEWISE=1::--compilation-config {"cudagraph_mode":"PIECEWISE"}'

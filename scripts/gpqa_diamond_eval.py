@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""GSM8K Evaluation Script using vLLM server and lm_eval."""
+"""GPQA-Diamond Evaluation Script using vLLM server and lm_eval."""
 
 import argparse
 import sys
-import os
+import json
 from pathlib import Path
 
 # Add parent directory to path for imports
@@ -23,7 +23,7 @@ from python.vllm_test_infra.ui import run_with_ui
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Run GSM8K evaluation using vLLM server and lm_eval"
+        description="Run GPQA-Diamond evaluation using vLLM server and lm_eval"
     )
     
     parser.add_argument(
@@ -65,8 +65,8 @@ def parse_args():
     )
     parser.add_argument(
         "--out-base",
-        default="./gsm8k-results",
-        help="Output directory (default: ./gsm8k-results)"
+        default="./gpqa-diamond-results",
+        help="Output directory (default: ./gpqa-diamond-results)"
     )
     parser.add_argument(
         "--venv",
@@ -89,8 +89,8 @@ def check_lm_eval_available() -> bool:
     return shutil.which("lm_eval") is not None
 
 
-def run_gsm8k_work(args, log_manager: LogManager, process_manager: ProcessManager) -> int:
-    """Run GSM8K evaluation work.
+def run_gpqa_diamond_work(args, log_manager: LogManager, process_manager: ProcessManager) -> int:
+    """Run GPQA-Diamond evaluation work.
     
     This function can be called from main thread (simple mode) or worker thread (TUI mode).
     
@@ -102,13 +102,16 @@ def run_gsm8k_work(args, log_manager: LogManager, process_manager: ProcessManage
     Returns:
         Exit code (0 for success, non-zero for failure).
     """
+    # Get logger
+    logger = log_manager.get_logger("gpqa_diamond_eval", log_to_file="script")
+    
     # Determine output paths
     out_base = Path(args.out_base).resolve()
     
     # Create eval runner
     runner = EvalRunner(
         model=args.model,
-        task_name="gsm8k",
+        task_name="leaderboard_gpqa_diamond",
         host=args.host,
         port=args.port,
         venv_path=args.venv,
@@ -138,8 +141,6 @@ def main():
     # Determine output paths
     out_base = Path(args.out_base).resolve()
     log_dir = out_base / "logs"
-    terse_model_name = Path(args.model).name
-    results_file = out_base / f"results_{terse_model_name}.json"
     
     # Setup logging
     log_manager = LogManager(str(log_dir))
@@ -149,36 +150,38 @@ def main():
     log_manager.init_log_file("script")
     
     # Get logger for script
-    logger = log_manager.get_logger("gsm8k_eval", log_to_file="script")
+    logger = log_manager.get_logger("gpqa_diamond_eval", log_to_file="script")
     
     # Log configuration info (only in simple mode, TUI will show in logs)
     if args.ui_mode != "tui":
         logger.info("=" * 50)
-        logger.info("GSM8K Evaluation")
+        logger.info("GPQA-Diamond Evaluation")
         logger.info("=" * 50)
         logger.info(f"Model: {args.model}")
-        logger.info(f"Port: {args.port}")
-        logger.info(f"Limit: {args.limit if args.limit else 'none'}")
-        logger.info(f"Concurrent: {args.num_concurrent}")
-        logger.info(f"Server args: {args.server_args if args.server_args else 'none'}")
-        logger.info(f"Results: {results_file}")
-        logger.info(f"Logs: {log_dir}")
-        logger.info("=" * 50)
+        logger.info(f"Output: {out_base}")
+        logger.info(f"Server: http://{args.host}:{args.port}")
+        if args.limit:
+            logger.info(f"Limit: {args.limit}")
+        if args.server_args:
+            logger.info(f"Server args: {args.server_args}")
+        logger.info("")
     
-    # Check for lm_eval
-    if not check_lm_eval_available():
-        print("ERROR: lm_eval not found! Install with: pip install lm-eval", file=sys.stderr)
-        sys.exit(1)
-    
-    # Setup process manager
+    # Create process manager
     process_manager = ProcessManager(log_manager)
+    
+    # Check if lm_eval is available
+    if not check_lm_eval_available():
+        logger.error("lm_eval command not found!")
+        logger.error("Please ensure lm-eval is installed in your environment.")
+        logger.error("Install with: pip install lm-eval")
+        return 1
     
     # Setup UI manager
     ui_manager = UIManager(log_manager, mode=args.ui_mode)
     
     # Create work function
     def work_func():
-        return run_gsm8k_work(args, log_manager, process_manager)
+        return run_gpqa_diamond_work(args, log_manager, process_manager)
     
     # Run with UI manager
     panes = {
@@ -194,7 +197,7 @@ def main():
         # Create eval runner to find results
         runner = EvalRunner(
             model=args.model,
-            task_name="gsm8k",
+            task_name="leaderboard_gpqa_diamond",
             host=args.host,
             port=args.port,
             venv_path=args.venv,
@@ -207,35 +210,36 @@ def main():
         
         if results_file and results_file.exists():
             try:
-                import json
                 with open(results_file, 'r') as f:
                     results_data = json.load(f)
                 
                 # Display results summary
                 print("\n" + "=" * 60)
-                print("GSM8K Evaluation Results")
+                print("GPQA-Diamond Evaluation Results")
                 print("=" * 60)
                 
-                if "results" in results_data:
-                    results = results_data["results"]
-                    # GSM8K can be under different keys
-                    gsm8k = results.get('gsm8k', results.get('gsm8k_cot', {}))
+                if "results" in results_data and "gpqa_diamond" in results_data["results"]:
+                    gpqa_results = results_data["results"]["gpqa_diamond"]
                     
-                    if gsm8k:
-                        print("\n📊 Results:")
-                        
-                        # Try different possible metric names
-                        for metric_key in ['exact_match,strict-match', 'exact_match,flexible-extract', 'exact_match']:
-                            if metric_key in gsm8k:
-                                acc = gsm8k[metric_key]
-                                stderr_key = metric_key.replace('exact_match', 'exact_match_stderr')
-                                stderr = gsm8k.get(stderr_key, 0)
-                                
-                                metric_name = metric_key.replace(',', ' ').replace('exact_match', 'Accuracy')
-                                if isinstance(acc, float):
-                                    print(f"  {metric_name:25s}: {acc*100:6.2f}% ± {stderr*100:5.2f}%")
-                                else:
-                                    print(f"  {metric_name:25s}: {acc}")
+                    # Extract key metrics
+                    acc = gpqa_results.get("acc,none", "N/A")
+                    acc_norm = gpqa_results.get("acc_norm,none", "N/A")
+                    acc_stderr = gpqa_results.get("acc_stderr,none", "N/A")
+                    acc_norm_stderr = gpqa_results.get("acc_norm_stderr,none", "N/A")
+                    
+                    # Format as percentages if available
+                    if isinstance(acc, (int, float)):
+                        acc = f"{acc * 100:.2f}%"
+                    if isinstance(acc_norm, (int, float)):
+                        acc_norm = f"{acc_norm * 100:.2f}%"
+                    if isinstance(acc_stderr, (int, float)):
+                        acc_stderr = f"±{acc_stderr * 100:.2f}%"
+                    if isinstance(acc_norm_stderr, (int, float)):
+                        acc_norm_stderr = f"±{acc_norm_stderr * 100:.2f}%"
+                    
+                    print(f"\n📊 Results:")
+                    print(f"  Accuracy:            {acc} {acc_stderr}")
+                    print(f"  Accuracy (norm):     {acc_norm} {acc_norm_stderr}")
                 
                 print(f"\n📁 Files:")
                 print(f"  Results:     {results_file}")
@@ -255,8 +259,9 @@ def main():
             print(f"  Eval log:    {log_manager.get_log_path('eval')}")
             print(f"  Script log:  {log_manager.get_log_path('script')}")
     
-    sys.exit(exit_code)
+    return exit_code
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
+

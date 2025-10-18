@@ -86,7 +86,7 @@ Compare vLLM performance across branches with multiple variants and rates.
 ./scripts/benchmark_compare.py \
   --model meta-llama/Meta-Llama-3-8B-Instruct \
   --rates 1,5,10,25 \
-  --variants 'base::;fullcg::-O {"full_cuda_graph":true}'
+  --variants 'base::;full::-O.cudagraph_mode=FULL'
 ```
 
 Options:
@@ -104,7 +104,7 @@ Variants allow testing different configurations:
 
 ```bash
 # Simple variants
---variants 'base::;fullcg::-O {"full_cuda_graph":true}'
+--variants 'base::;full::-O.cudagraph_mode=FULL'
 
 # Variants with environment variables
 --variants 'piece::env:VLLM_USE_PIECEWISE=1::--compilation-config {"cudagraph_mode":"PIECEWISE"}'
@@ -179,7 +179,7 @@ Format: `label::args` or `label::env:K=V,K2=V2::args`
 # Test multiple variants
 ./scripts/benchmark_compare.py \
   --model deepseek-ai/DeepSeek-V3 \
-  --variants 'base::;fullcg::-O {"full_cuda_graph":true};piece::--compilation-config {"cudagraph_mode":"PIECEWISE"}' \
+  --variants 'base::;full::-O.cudagraph_mode=FULL;piece::-O.cudagraph_mode=PIECEWISE' \
   --rates 1,10,100 \
   -tp 8
 

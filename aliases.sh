@@ -33,7 +33,10 @@ alias jl='just -f ~/.config/aliases/dot-aliases/Justfile'
 
 # vLLM Test Infrastructure
 alias gsm8k-eval='${HOME}/.config/aliases/dot-aliases/scripts/gsm8k_eval.py'
+alias gpqa-diamond-eval='${HOME}/.config/aliases/dot-aliases/scripts/gpqa_diamond_eval.py'
 alias benchmark-compare='${HOME}/.config/aliases/dot-aliases/scripts/benchmark_compare.py'
+alias benchmark='${HOME}/.config/aliases/dot-aliases/scripts/benchmark_single.py'
+alias profile='${HOME}/.config/aliases/dot-aliases/scripts/profile.py'
 
 # Install dependencies with uv pip (preferred) or fallback to pip/pip3
 _vllm_test_infra_install() {
