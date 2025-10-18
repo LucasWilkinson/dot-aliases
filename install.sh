@@ -56,4 +56,14 @@ else
   echo "just is already installed"
 fi
 
+# Make Python scripts executable
+chmod +x "${REPO_DIR}/scripts/gsm8k_eval.py" 2>/dev/null || true
+chmod +x "${REPO_DIR}/scripts/benchmark_compare.py" 2>/dev/null || true
+
+# Install Python dependencies for vLLM test infrastructure (optional)
+echo ""
+echo "vLLM Test Infrastructure is available at: ${REPO_DIR}/python/"
+echo "To install Python dependencies, run: vllm-test-infra-install"
+echo "  (or manually: pip install -r ${REPO_DIR}/python/requirements.txt)"
+
 echo "Aliases installed. Open a new shell or run: source \"$ALIAS_FILE\""

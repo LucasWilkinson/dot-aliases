@@ -1,0 +1,4 @@
+# vLLM Test Infrastructure Dependencies
+textual>=0.47.0
+requests>=2.31.0
+

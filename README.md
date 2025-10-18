@@ -8,6 +8,9 @@ A simple, cross-shell repository for keeping your aliases in one place and insta
 - `bashrc.snippet` — Loader snippet for Bash (`~/.bashrc`)
 - `zshrc.snippet` — Loader snippet for Zsh (`~/.zshrc`)
 - `install.sh` — Idempotent installer script
+- `python/vllm_test_infra/` — Python infrastructure for vLLM testing
+- `scripts/` — Python test scripts (gsm8k_eval.py, benchmark_compare.py)
+- `bash-scripts/` — Legacy bash scripts (deprecated, use Python scripts instead)
 
 ## Quick Install
 
@@ -76,6 +79,11 @@ alias aliases-update='curl -fsSL https://raw.githubusercontent.com/LucasWilkinso
 - `vllm-test` — Run pytest with verbose output
 - `cleanup-vllm` — Kill vLLM processes
 
+### vLLM Test Infrastructure
+- `gsm8k-eval` — Run GSM8K evaluation (from any directory)
+- `benchmark-compare` — Run benchmark comparison across branches (from any directory)
+- `vllm-test-infra-install` — Install Python dependencies for test infrastructure
+
 ### Development
 - `py` / `py3` — Python shortcuts
 - `reload` — Reload `~/.bashrc`
@@ -108,6 +116,41 @@ Or force a fresh pull on your current machine:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/LucasWilkinson/dot-aliases/main/install.sh | bash
 ```
+
+## vLLM Test Infrastructure
+
+A reusable Python infrastructure for running vLLM benchmarks and evaluations with robust server management, process monitoring, and user interfaces.
+
+### Features
+
+- **Robust Server Management**: Auto-detects GPU requirements, uses `chg` for reservation, monitors logs for fast-fail
+- **Process Monitoring**: Signal handling, zombie cleanup, timeouts
+- **Dual UI Modes**: Textual-based TUI for interactive use, simple stdout for AI agents
+- **Git Integration**: Branch comparison, automatic builds
+- **Extensible**: Easy to add new test scripts
+
+### Quick Start
+
+Install dependencies:
+```bash
+vllm-test-infra-install
+# Or manually: pip install -r ~/.config/aliases/dot-aliases/python/requirements.txt
+```
+
+Run GSM8K evaluation (from any directory):
+```bash
+gsm8k-eval --model deepseek-ai/DeepSeek-R1 --limit 100
+```
+
+Compare benchmarks across branches (from any directory):
+```bash
+benchmark-compare \
+  --model meta-llama/Meta-Llama-3-8B-Instruct \
+  --rates 1,5,10 \
+  --variants 'base::;fullcg::-O {"full_cuda_graph":true}'
+```
+
+See [python/README.md](python/README.md) for full documentation.
 
 ## Security Notes
 
