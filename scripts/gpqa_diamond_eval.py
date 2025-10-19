@@ -16,6 +16,7 @@ from python.vllm_test_infra import (
     ProcessManager,
     UIManager,
     note,
+    setup_signal_handlers,
 )
 from python.vllm_test_infra.ui import run_with_ui
 
@@ -111,7 +112,7 @@ def run_gpqa_diamond_work(args, log_manager: LogManager, process_manager: Proces
     # Create eval runner
     runner = EvalRunner(
         model=args.model,
-        task_name="leaderboard_gpqa_diamond",
+        task_name="gpqa_diamond_n_shot",
         host=args.host,
         port=args.port,
         venv_path=args.venv,
@@ -132,6 +133,9 @@ def run_gpqa_diamond_work(args, log_manager: LogManager, process_manager: Proces
 
 def main():
     """Main entry point."""
+    # Setup signal handlers FIRST for graceful shutdown
+    setup_signal_handlers()
+    
     args = parse_args()
     
     # Setup configuration
@@ -197,7 +201,7 @@ def main():
         # Create eval runner to find results
         runner = EvalRunner(
             model=args.model,
-            task_name="leaderboard_gpqa_diamond",
+            task_name="gpqa_diamond_n_shot",
             host=args.host,
             port=args.port,
             venv_path=args.venv,

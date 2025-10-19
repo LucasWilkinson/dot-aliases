@@ -16,6 +16,7 @@ from python.vllm_test_infra import (
     ProcessManager,
     VLLMServer,
     note,
+    setup_signal_handlers,
 )
 
 
@@ -254,6 +255,9 @@ def run_profiling(args, log_manager: LogManager, process_manager: ProcessManager
 
 def main():
     """Main entry point."""
+    # Setup signal handlers FIRST for graceful shutdown
+    setup_signal_handlers()
+    
     args = parse_args()
     
     # Setup configuration

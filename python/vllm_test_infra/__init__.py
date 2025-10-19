@@ -11,6 +11,7 @@ from .git import GitError, GitManager
 from .logging import LogManager
 from .process import ProcessManager
 from .server import VLLMServer, VLLMServerError
+from .signal_handler import register_cleanup, setup_signal_handlers
 from .ui import UIManager, run_with_ui
 from .utils import (
     check_gpu_memory,
@@ -43,6 +44,9 @@ __all__ = [
     # Server
     "VLLMServer",
     "VLLMServerError",
+    # Signal Handling
+    "register_cleanup",
+    "setup_signal_handlers",
     # UI
     "UIManager",
     "run_with_ui",

@@ -16,6 +16,7 @@ from python.vllm_test_infra import (
     ProcessManager,
     UIManager,
     note,
+    setup_signal_handlers,
 )
 from python.vllm_test_infra.ui import run_with_ui
 
@@ -129,6 +130,9 @@ def run_gsm8k_work(args, log_manager: LogManager, process_manager: ProcessManage
 
 def main():
     """Main entry point."""
+    # Setup signal handlers FIRST for graceful shutdown
+    setup_signal_handlers()
+    
     args = parse_args()
     
     # Setup configuration

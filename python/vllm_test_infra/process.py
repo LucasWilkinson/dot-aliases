@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from .logging import LogManager
+from .signal_handler import register_cleanup
 from .utils import cleanup_zombie_processes, note
 
 
@@ -25,12 +26,15 @@ class ProcessManager:
         self.processes: Dict[str, subprocess.Popen] = {}
         self._cleanup_registered = False
         
-        # Register cleanup on exit
+        # Register cleanup on exit (atexit as fallback)
         if not self._cleanup_registered:
             atexit.register(self.cleanup_on_exit)
             self._cleanup_registered = True
         
-        # Register signal handlers for graceful shutdown
+        # Register with global signal handler for coordinated cleanup
+        register_cleanup(self.terminate_all)
+        
+        # Keep local signal handlers as additional safety
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
     

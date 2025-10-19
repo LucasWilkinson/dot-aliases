@@ -9,7 +9,7 @@ from typing import List, Tuple
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from python.vllm_test_infra import BaseBenchmarkRunner, UIManager
+from python.vllm_test_infra import BaseBenchmarkRunner, UIManager, setup_signal_handlers
 from python.vllm_test_infra.ui import run_with_ui
 
 
@@ -210,6 +210,9 @@ class BenchmarkRunner(BaseBenchmarkRunner):
 
 def main():
     """Main entry point."""
+    # Setup signal handlers FIRST for graceful shutdown
+    setup_signal_handlers()
+    
     args = parse_args()
     runner = BenchmarkRunner(args)
     
